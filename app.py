@@ -12,7 +12,7 @@ MalNetActivations = GradCamUtils()
 
 
 def get_model():
-    model = load_model('Model/EfficientNetB0_TL_Model.h5')
+    model = load_model('Model/EfficientNetB0_TL_Model.h5', compile=False)
     return model
 
 
