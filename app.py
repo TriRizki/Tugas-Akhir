@@ -12,8 +12,7 @@ MalNetActivations = GradCamUtils()
 
 
 def get_model():
-    model = load_model(
-        filepath='E:\Rizki\ITS\Skripsi\Website\Model\Custom_Model_with_GAP_Layer.h5')
+    model = load_model('Model\Custom_Model_with_GAP_Layer.h5')
     return model
 
 
