@@ -11,9 +11,8 @@ from GradCamUtility import GradCamUtils
 MalNetActivations = GradCamUtils()
 
 
-@st.cache_resource
 def get_model():
-    model = load_model('Model\Custom_Model_with_GAP_Layer.h5')
+    model = load_model('Model/Custom_Model_with_GAP_Layer.h5')
     return model
 
 
