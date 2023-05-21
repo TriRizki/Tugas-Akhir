@@ -1,13 +1,12 @@
 # import libraries
 import streamlit as st
-from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.models import Model
 import efficientnet.tfkeras
-from tensorflow.keras.models import load_model
+from PIL import Image
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.models import Model, load_model
 
 from GradCamUtility import GradCamUtils
 MalNetActivations = GradCamUtils()
@@ -16,8 +15,7 @@ MalNetActivations = GradCamUtils()
 @st.cache_resource
 def get_model():
     predict_model = load_model('Model/EfficientNetB0_TL_Model.h5')
-    gradcam_model = tf.keras.models.load_model(
-        'Model/Custom_Model_with_GAP_Layer.h5')
+    gradcam_model = load_model('Model/Custom_Model_with_GAP_Layer.h5')
     return predict_model, gradcam_model
 
 
