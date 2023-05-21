@@ -42,6 +42,7 @@ def predict(img, predict_model):
 
 def main():
     # title
+    st.set_page_config(page_title="Malaria Parasite Detection")
     st.title('Malaria Parasite Detection')
 
     # sidebar
