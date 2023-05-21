@@ -11,3 +11,9 @@ Malaria parasite detection with the help of transfer learning, snapshot ensemble
 ### Demo link (still in development though)
 
 https://malariaparasitedetection.streamlit.app/
+
+### Preview of the demo
+
+<!-- give image  -->
+
+![result after inference](screencapture-malariaparasitedetection-streamlit-app-2023-05-21-20_03_20.png)
