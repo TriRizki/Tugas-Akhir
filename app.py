@@ -13,6 +13,7 @@ from GradCamUtility import GradCamUtils
 MalNetActivations = GradCamUtils()
 
 
+@st.cache_resource
 def get_model():
     predict_model = load_model('Model/EfficientNetB0_TL_Model.h5')
     gradcam_model = tf.keras.models.load_model(
