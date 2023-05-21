@@ -14,7 +14,7 @@ MalNetActivations = GradCamUtils()
 
 
 def get_model():
-    predict_model = load_model('Model\EfficientNetB0_TL_Model.h5')
+    predict_model = load_model('Model/EfficientNetB0_TL_Model.h5')
     gradcam_model = tf.keras.models.load_model(
         'Model\Custom_Model_with_GAP_Layer.h5')
     return predict_model, gradcam_model
