@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 import cv2
 import numpy as np
+import streamlit as st
 
 # Display
 from IPython.display import Image
@@ -28,10 +29,12 @@ class GradCamUtils():
         img_array = np.expand_dims(array, axis=0)
         return img_array
 
-    def ComputeGradCAMHeatmap(self, img_array, model, last_conv_layer_name, classifier_layer_names):
+    @st.cache_data
+    def ComputeGradCAMHeatmap(_self, img_array, _model, last_conv_layer_name, classifier_layer_names):
 
         # First, we create a model that maps the input image to the activations
         # of the last conv layer
+        model = _model
         last_conv_layer = model.get_layer(last_conv_layer_name)
         last_conv_layer_model = keras.Model(
             model.inputs, last_conv_layer.output)
@@ -78,6 +81,7 @@ class GradCamUtils():
         # only those features that tend to have a positive effect and increase the
         # probability score for the particular class.
         # For visualization purpose, we will also normalize the heatmap between 0 & 1
+
         heatmap = np.maximum(heatmap, 0) / np.max(heatmap)
 
         return heatmap
@@ -89,7 +93,8 @@ class GradCamUtils():
         plt.axis('off')
         plt.show()
 
-    def GetSuperImposedCAMImage(self, heatmap, img):
+    @st.cache_data
+    def GetSuperImposedCAMImage(_self, heatmap, img):
 
         # Rescale heatmap to a range 0-255
         heatmap = np.uint8(255 * heatmap)
@@ -110,18 +115,27 @@ class GradCamUtils():
 
         return superImposedImage
 
-    def DisplaySuperImposedImages(self, image, heatmap, superimposed_img):
+    @st.cache_data
+    def DisplaySuperImposedImages(_self, image, heatmap, superimposed_img):
 
-        fig, ax = plt.subplots(1, 3, figsize=(8, 12))
+        # fig, ax = plt.subplots(1, 3, figsize=(8, 12))
 
+        # ax[0].imshow(image)
+        # ax[1].imshow(heatmap)
+        # ax[2].imshow(superimposed_img)
+
+        # ax[0].title.set_text('Original Image')
+        # ax[1].title.set_text('Class Activation Heatmap')
+        # ax[2].title.set_text('Class Activation Blended Image')
+
+        # ax[0].axis('off')
+        # ax[1].axis('off')
+        # ax[2].axis('off')
+        fig, ax = plt.subplots(1, 3, figsize=(15, 15))
         ax[0].imshow(image)
+        ax[0].set_title('Original Image')
         ax[1].imshow(heatmap)
+        ax[1].set_title('GradCAM Heatmap')
         ax[2].imshow(superimposed_img)
-
-        ax[0].title.set_text('Original Image')
-        ax[1].title.set_text('Class Activation Heatmap')
-        ax[2].title.set_text('Class Activation Blended Image')
-
-        ax[0].axis('off')
-        ax[1].axis('off')
-        ax[2].axis('off')
+        ax[2].set_title('GradCAM Superimposed Image')
+        st.pyplot(fig)
