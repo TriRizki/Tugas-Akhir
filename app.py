@@ -115,6 +115,7 @@ def main():
                     infection_severity = "Low"
                     pass
                 elif prob_scr > 25 and prob_scr <= 50:
+                    infection_severity = "Moderate"
                     pass
                 else:
                     infection_severity = "High"
