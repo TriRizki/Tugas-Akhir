@@ -9,13 +9,14 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import Model, load_model
 
 from GradCamUtility import GradCamUtils
+
 MalNetActivations = GradCamUtils()
 
 
 @st.cache_resource
 def get_model():
-    predict_model = load_model('Model/EfficientNetB0_TL_Model.h5')
-    gradcam_model = load_model('Model/Custom_Model_with_GAP_Layer.h5')
+    predict_model = load_model("Model/EfficientNetB0_TL_Model.h5")
+    gradcam_model = load_model("Model/Custom_Model_with_GAP_Layer.h5")
     return predict_model, gradcam_model
 
 
@@ -29,7 +30,7 @@ def predict(img, predict_model):
     threshold = 0.50
     img = img.resize((135, 135))
     img = image.img_to_array(img)
-    img_3d = img/255
+    img_3d = img / 255
     img_4d = np.expand_dims(img_3d, axis=0)
 
     predicted_probabilities = predict_model.predict(img_4d)
@@ -41,72 +42,89 @@ def predict(img, predict_model):
 def main():
     # title
     st.set_page_config(page_title="Malaria Parasite Detection")
-    st.title('Malaria Parasite Detection')
+    st.title("Malaria Parasite Detection")
 
     # sidebar
-    activities = ['Load Image', 'Predict']
-    choice = st.sidebar.selectbox('Select Activity', activities)
+    activities = ["Load Image", "Predict"]
+    choice = st.sidebar.selectbox("Select Activity", activities)
 
     # main page
-    if choice == 'Load Image':
-        i = 0
-        st.subheader('Load Image')
+    if choice == "Load Image":
+        st.subheader("Load Image")
         image_files = st.file_uploader(
-            'Upload Image', type=['jpg', 'png', 'jpeg'], accept_multiple_files=True)
+            "Upload Image", type=["jpg", "png", "jpeg"], accept_multiple_files=True
+        )
         col1, col2 = st.columns(2)
-        for image_file in image_files:
+
+        for i, image_file in enumerate(image_files):
             if image_file is not None:
                 if i % 2 == 0:
                     img = load_image(image_file)
                     with col1:
-                        st.image(img, width=300, caption='Uploaded Image')
+                        st.image(img, width=300, caption="Uploaded Image")
                 else:
                     img = load_image(image_file)
                     with col2:
-                        st.image(img, width=300, caption='Uploaded Image')
-                i += 1
+                        st.image(img, width=300, caption="Uploaded Image")
 
-    elif choice == 'Predict':
+    elif choice == "Predict":
         predict_model, gradcam_model = get_model()
 
         # Get the last layer of the convolutional block
         last_conv_layer_name = "batch_normalization_2"
 
         # Get the final classification layers
-        classifier_layer_names = [
-            "global_average_pooling2d",
-            "dense"
-        ]
+        classifier_layer_names = ["global_average_pooling2d", "dense"]
 
-        st.subheader('Predict Result')
+        st.subheader("Predict Result")
         image_files = st.file_uploader(
-            'Upload Image', type=['jpg', 'png', 'jpeg'], accept_multiple_files=True)
+            "Upload Image", type=["jpg", "png", "jpeg"], accept_multiple_files=True
+        )
+
         for image_file in image_files:
             if image_file is not None:
                 image = load_image(image_file)
                 # st.image(img, width=300, caption='Uploaded Image')
-                probability, binary, img_4d, img_3d = predict(
-                    image, predict_model)
+                probability, binary, img_4d, img_3d = predict(image, predict_model)
 
                 heatmap = MalNetActivations.ComputeGradCAMHeatmap(
-                    img_4d, gradcam_model, last_conv_layer_name, classifier_layer_names)
+                    img_4d, gradcam_model, last_conv_layer_name, classifier_layer_names
+                )
 
                 if np.isnan(heatmap).any():
                     continue
 
-                if binary == 0:
-                    st.write(
-                        'This is Uninfected with score: {}'.format(probability[0][0]))
+                prob_scr = round(probability[0][0], 2) * 100
+
+                if prob_scr == 0:
+                    infection_severity = 'Uninfected'
+                    pass
+                elif prob_scr > 0 and prob_scr <= 5:
+                    infection_severity = 'Very Low'
+                    pass
+                elif prob_scr > 5 and prob_scr <= 25:
+                    infection_severity = 'Low'
+                    pass
+                elif prob_scr > 25 and prob_scr <= 50:
+                    infection_severity = 'Moderate'
+                    pass
                 else:
-                    st.write(
-                        'This is Parasitized with score: {}'.format(probability[0][0]))
+                    infection_severity = 'High'
+
+                st.write(
+                    """**Infection Probability: {:.2%}**\n\n **Infection Severity: {}**""".format(
+                        float(probability[0][0]), infection_severity
+                    )
+                )
 
                 super_imposed_image = MalNetActivations.GetSuperImposedCAMImage(
-                    heatmap, img_3d)
+                    heatmap, img_3d
+                )
 
                 MalNetActivations.DisplaySuperImposedImages(
-                    img_3d, heatmap, super_imposed_image)
+                    img_3d, heatmap, super_imposed_image
+                )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
