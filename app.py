@@ -14,8 +14,14 @@ MalNetActivations = GradCamUtils()
 
 
 @st.cache_resource
-def get_model():
-    predict_model = load_model("Model/EfficientNetB0_TL_Model.h5")
+def get_model(choice):
+    if choice == "EfficientNetB0":
+        predict_model = load_model("Model/EfficientNetB0_TL_Model.h5")
+    elif choice == "Custom Model":
+        predict_model = load_model("Model/Custom_Model_with_GAP_Layer.h5")
+    else:
+        predict_model = load_model("Model/DenseNet121_TL_Model.h5")
+
     gradcam_model = load_model("Model/Custom_Model_with_GAP_Layer.h5")
     return predict_model, gradcam_model
 
@@ -68,7 +74,10 @@ def main():
                         st.image(img, width=300, caption="Uploaded Image")
 
     elif choice == "Predict":
-        predict_model, gradcam_model = get_model()
+        model = ["EfficientNetB0", "Custom Model", "DenseNet121"]
+        model_choice = st.sidebar.selectbox("Select Model", model)
+
+        predict_model, gradcam_model = get_model(model_choice)
 
         # Get the last layer of the convolutional block
         last_conv_layer_name = "batch_normalization_2"
@@ -97,19 +106,18 @@ def main():
                 prob_scr = round(probability[0][0], 2) * 100
 
                 if prob_scr == 0:
-                    infection_severity = 'Uninfected'
+                    infection_severity = "Uninfected"
                     pass
                 elif prob_scr > 0 and prob_scr <= 5:
-                    infection_severity = 'Very Low'
+                    infection_severity = "Very Low"
                     pass
                 elif prob_scr > 5 and prob_scr <= 25:
-                    infection_severity = 'Low'
+                    infection_severity = "Low"
                     pass
                 elif prob_scr > 25 and prob_scr <= 50:
-                    infection_severity = 'Moderate'
                     pass
                 else:
-                    infection_severity = 'High'
+                    infection_severity = "High"
 
                 st.write(
                     """**Infection Probability: {:.2%}**\n\n **Infection Severity: {}**""".format(

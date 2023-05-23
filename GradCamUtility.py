@@ -11,14 +11,11 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 
-class GradCamUtils():
-
+class GradCamUtils:
     def __init__(self):
-
         pass
 
     def GetImageArrayInBatch(self, img_path, size):
-
         img = keras.preprocessing.image.load_img(img_path, target_size=size)
 
         # Get the image array
@@ -30,14 +27,14 @@ class GradCamUtils():
         return img_array
 
     @st.cache_data
-    def ComputeGradCAMHeatmap(_self, img_array, _model, last_conv_layer_name, classifier_layer_names):
-
+    def ComputeGradCAMHeatmap(
+        _self, img_array, _model, last_conv_layer_name, classifier_layer_names
+    ):
         # First, we create a model that maps the input image to the activations
         # of the last conv layer
         model = _model
         last_conv_layer = model.get_layer(last_conv_layer_name)
-        last_conv_layer_model = keras.Model(
-            model.inputs, last_conv_layer.output)
+        last_conv_layer_model = keras.Model(model.inputs, last_conv_layer.output)
 
         # Second, we create a model that maps the activations of the last conv
         # layer to the final class predictions
@@ -87,15 +84,13 @@ class GradCamUtils():
         return heatmap
 
     def DisplayHeatMap(self, heatmap):
-
         # Display heatmap
         plt.matshow(heatmap)
-        plt.axis('off')
+        plt.axis("off")
         plt.show()
 
     @st.cache_data
     def GetSuperImposedCAMImage(_self, heatmap, img):
-
         # Rescale heatmap to a range 0-255
         heatmap = np.uint8(255 * heatmap)
 
@@ -117,25 +112,11 @@ class GradCamUtils():
 
     @st.cache_data
     def DisplaySuperImposedImages(_self, image, heatmap, superimposed_img):
-
-        # fig, ax = plt.subplots(1, 3, figsize=(8, 12))
-
-        # ax[0].imshow(image)
-        # ax[1].imshow(heatmap)
-        # ax[2].imshow(superimposed_img)
-
-        # ax[0].title.set_text('Original Image')
-        # ax[1].title.set_text('Class Activation Heatmap')
-        # ax[2].title.set_text('Class Activation Blended Image')
-
-        # ax[0].axis('off')
-        # ax[1].axis('off')
-        # ax[2].axis('off')
         fig, ax = plt.subplots(1, 3, figsize=(15, 15))
         ax[0].imshow(image)
-        ax[0].set_title('Original Image')
+        ax[0].set_title("Original Image")
         ax[1].imshow(heatmap)
-        ax[1].set_title('GradCAM Heatmap')
+        ax[1].set_title("GradCAM Heatmap")
         ax[2].imshow(superimposed_img)
-        ax[2].set_title('GradCAM Superimposed Image')
+        ax[2].set_title("GradCAM Superimposed Image")
         st.pyplot(fig)
