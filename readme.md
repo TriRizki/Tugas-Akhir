@@ -16,4 +16,5 @@ https://malariaparasitedetection.streamlit.app/
 
 <!-- give image  -->
 
-![result after inference](screencapture-malariaparasitedetection-streamlit-app-2023-05-21-20_03_20.png)
+![result after inference](demo1.png)
+![model performance](demo2.png)
