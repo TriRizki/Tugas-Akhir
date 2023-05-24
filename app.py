@@ -1,6 +1,9 @@
 # import libraries
-import streamlit as st
+import os
 import numpy as np
+import pandas as pd
+import streamlit as st
+import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import efficientnet.tfkeras
@@ -39,23 +42,92 @@ def predict(img, predict_model):
     img_3d = img / 255
     img_4d = np.expand_dims(img_3d, axis=0)
 
+
+@st.cache_data
+def get_history():
+    history_files = os.listdir("Training History")
+    history_files.sort()
+    return history_files
     predicted_probabilities = predict_model.predict(img_4d)
     prediction_binaries = int(predicted_probabilities > threshold)
 
     return predicted_probabilities, prediction_binaries, img_4d, img_3d
 
 
+@st.cache_data
+def performance(files):
+    name = [
+        "Custom_Model_AVG",
+        "Custom_Model_GAP",
+        "DenseNet121",
+        "EfficientNetB4",
+        "EfficientNetB0",
+        "InceptionResNetV2",
+        "InceptionV3",
+        "ResNet50V2",
+        "Xception",
+    ]
+
+    data_val_acc = []
+    data_val_loss = []
+
+    for i, file in enumerate(files):
+        history = pd.read_csv("Training History/" + file)
+        history.rename(columns={"Unnamed: 0": "epoch"}, inplace=True)
+
+        val_acc_line = go.Scatter(
+            x=history["epoch"],
+            y=history["val_accuracy"],
+            name=name[i],  # Use the history file name as the legend label
+        )
+        data_val_acc.append(val_acc_line)
+
+        val_loss_line = go.Scatter(
+            x=history["epoch"],
+            y=history["val_loss"],
+            name=name[i],  # Use the history file name as the legend label
+        )
+
+        data_val_loss.append(val_loss_line)
+
+    layout = go.Layout(
+        title=dict(text="Validation Accuracy", x=0.4),
+        titlefont=dict(size=20),
+        xaxis=dict(title="Epoch"),
+        yaxis=dict(title="Validation Accuracy"),
+        height=500,
+        width=1000,
+    )
+
+    fig = go.Figure(data=data_val_acc, layout=layout)
+
+    st.plotly_chart(fig)
+
+    layout = go.Layout(
+        title=dict(text="Validation Loss", x=0.4),
+        titlefont=dict(size=20),
+        xaxis=dict(title="Epoch"),
+        yaxis=dict(title="Validation Loss"),
+        height=500,
+        width=1000,
+    )
+
+    fig = go.Figure(data=data_val_loss, layout=layout)
+
+    st.plotly_chart(fig)
+
+
 def main():
     # title
-    st.set_page_config(page_title="Malaria Parasite Detection")
+    st.set_page_config(page_title="Malaria Parasite Detection", layout="wide")
     st.title("Malaria Parasite Detection")
 
     # sidebar
-    activities = ["Load Image", "Predict"]
+    activities = ["Load", "Predict", "Performance"]
     choice = st.sidebar.selectbox("Select Activity", activities)
 
     # main page
-    if choice == "Load Image":
+    if choice == "Load":
         st.subheader("Load Image")
         image_files = st.file_uploader(
             "Upload Image", type=["jpg", "png", "jpeg"], accept_multiple_files=True
@@ -133,6 +205,12 @@ def main():
                 MalNetActivations.DisplaySuperImposedImages(
                     img_3d, heatmap, super_imposed_image
                 )
+
+    elif choice == "Performance":
+        st.subheader("Model Performance")
+        history_files = get_history()
+
+        performance(history_files)
 
 
 if __name__ == "__main__":
