@@ -1,4 +1,3 @@
-# import libraries
 import os
 import numpy as np
 import pandas as pd
@@ -41,6 +40,10 @@ def predict(img, predict_model):
     img = image.img_to_array(img)
     img_3d = img / 255
     img_4d = np.expand_dims(img_3d, axis=0)
+    predicted_probabilities = predict_model.predict(img_4d)
+    prediction_binaries = int(predicted_probabilities > threshold)
+
+    return predicted_probabilities, prediction_binaries, img_4d, img_3d
 
 
 @st.cache_data
@@ -48,10 +51,6 @@ def get_history():
     history_files = os.listdir("Training History")
     history_files.sort()
     return history_files
-    predicted_probabilities = predict_model.predict(img_4d)
-    prediction_binaries = int(predicted_probabilities > threshold)
-
-    return predicted_probabilities, prediction_binaries, img_4d, img_3d
 
 
 @st.cache_data
