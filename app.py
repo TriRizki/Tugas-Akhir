@@ -50,45 +50,12 @@ def predict(img, predict_model):
 def get_history():
     history_files = os.listdir("Training History")
     history_files.sort()
+    print(history_files)
     return history_files
 
 
 @st.cache_data
-def performance(files):
-    name = [
-        "Custom_Model_AVG",
-        "Custom_Model_GAP",
-        "DenseNet121",
-        "EfficientNetB4",
-        "EfficientNetB0",
-        "InceptionResNetV2",
-        "InceptionV3",
-        "ResNet50V2",
-        "Xception",
-    ]
-
-    data_val_acc = []
-    data_val_loss = []
-
-    for i, file in enumerate(files):
-        history = pd.read_csv("Training History/" + file)
-        history.rename(columns={"Unnamed: 0": "epoch"}, inplace=True)
-
-        val_acc_line = go.Scatter(
-            x=history["epoch"],
-            y=history["val_accuracy"],
-            name=name[i],  # Use the history file name as the legend label
-        )
-        data_val_acc.append(val_acc_line)
-
-        val_loss_line = go.Scatter(
-            x=history["epoch"],
-            y=history["val_loss"],
-            name=name[i],  # Use the history file name as the legend label
-        )
-
-        data_val_loss.append(val_loss_line)
-
+def performance(val_acc, val_loss, lr):
     layout = go.Layout(
         title=dict(text="Validation Accuracy", x=0.4),
         titlefont=dict(size=20),
@@ -97,9 +64,7 @@ def performance(files):
         height=500,
         width=1000,
     )
-
-    fig = go.Figure(data=data_val_acc, layout=layout)
-
+    fig = go.Figure(data=val_acc, layout=layout)
     st.plotly_chart(fig)
 
     layout = go.Layout(
@@ -111,8 +76,19 @@ def performance(files):
         width=1000,
     )
 
-    fig = go.Figure(data=data_val_loss, layout=layout)
+    fig = go.Figure(data=val_loss, layout=layout)
+    st.plotly_chart(fig)
 
+    layout = go.Layout(
+        title=dict(text="Learning Rate", x=0.4),
+        titlefont=dict(size=20),
+        xaxis=dict(title="Epoch"),
+        yaxis=dict(title="Learning Rate"),
+        height=500,
+        width=1000,
+    )
+
+    fig = go.Figure(data=lr, layout=layout)
     st.plotly_chart(fig)
 
 
@@ -209,7 +185,47 @@ def main():
         st.subheader("Model Performance")
         history_files = get_history()
 
-        performance(history_files)
+        val_acc = []
+        val_loss = []
+        lr = []
+        name = [
+            "Custom_Model_GAP",
+            "Ensembled_EfficientNetV2B0",
+            "DenseNet121",
+            "EfficientNetB4",
+            "EfficientNetB0",
+            "InceptionResNetV2",
+            "InceptionV3",
+            "ResNet50V2",
+            "Xception",
+        ]
+
+        for i, history in enumerate(history_files):
+            df = pd.read_csv("Training History/" + history)
+            df.rename(columns={"Unnamed: 0": "epoch"}, inplace=True)
+
+            val_acc_line = go.Scatter(
+                x=df["epoch"],
+                y=df["val_accuracy"],
+                name=name[i],  # Use the history file name as the legend label
+            )
+            val_acc.append(val_acc_line)
+
+            val_loss_line = go.Scatter(
+                x=df["epoch"],
+                y=df["val_loss"],
+                name=name[i],  # Use the history file name as the legend label
+            )
+            val_loss.append(val_loss_line)
+
+            learning_rate_line = go.Scatter(
+                x=df["epoch"],
+                y=df["lr"],
+                name=name[i],  # Use the history file name as the legend label
+            )
+            lr.append(learning_rate_line)
+
+        performance(val_acc, val_loss, lr)
 
 
 if __name__ == "__main__":
