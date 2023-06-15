@@ -50,7 +50,7 @@ def predict(img, predict_model):
 def get_history():
     history_files = os.listdir("Training History")
     history_files.sort()
-    print(history_files)
+    # print(history_files)
     return history_files
 
 
@@ -98,29 +98,11 @@ def main():
     st.title("Malaria Parasite Detection")
 
     # sidebar
-    activities = ["Load", "Predict", "Performance"]
+    activities = ["Predict", "Performance"]
     choice = st.sidebar.selectbox("Select Activity", activities)
 
     # main page
-    if choice == "Load":
-        st.subheader("Load Image")
-        image_files = st.file_uploader(
-            "Upload Image", type=["jpg", "png", "jpeg"], accept_multiple_files=True
-        )
-        col1, col2 = st.columns(2)
-
-        for i, image_file in enumerate(image_files):
-            if image_file is not None:
-                if i % 2 == 0:
-                    img = load_image(image_file)
-                    with col1:
-                        st.image(img, width=300, caption="Uploaded Image")
-                else:
-                    img = load_image(image_file)
-                    with col2:
-                        st.image(img, width=300, caption="Uploaded Image")
-
-    elif choice == "Predict":
+    if choice == "Predict":
         model = ["EfficientNetB0", "Custom Model", "DenseNet121"]
         model_choice = st.sidebar.selectbox("Select Model", model)
 
@@ -188,17 +170,6 @@ def main():
         val_acc = []
         val_loss = []
         lr = []
-        name = [
-            "Custom_Model_GAP",
-            "Ensembled_EfficientNetV2B0",
-            "DenseNet121",
-            "EfficientNetB4",
-            "EfficientNetB0",
-            "InceptionResNetV2",
-            "InceptionV3",
-            "ResNet50V2",
-            "Xception",
-        ]
 
         for i, history in enumerate(history_files):
             df = pd.read_csv("Training History/" + history)
@@ -207,21 +178,21 @@ def main():
             val_acc_line = go.Scatter(
                 x=df["epoch"],
                 y=df["val_accuracy"],
-                name=name[i],  # Use the history file name as the legend label
+                name=history.split(".")[0],
             )
             val_acc.append(val_acc_line)
 
             val_loss_line = go.Scatter(
                 x=df["epoch"],
                 y=df["val_loss"],
-                name=name[i],  # Use the history file name as the legend label
+                name=history.split(".")[0],
             )
             val_loss.append(val_loss_line)
 
             learning_rate_line = go.Scatter(
                 x=df["epoch"],
                 y=df["lr"],
-                name=name[i],  # Use the history file name as the legend label
+                name=history.split(".")[0],
             )
             lr.append(learning_rate_line)
 
