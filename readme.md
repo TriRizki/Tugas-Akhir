@@ -16,5 +16,5 @@ https://malariaparasitedetection.streamlit.app/
 
 <!-- give image  -->
 
-![result after inference](demo1.png)
-![model performance](demo2.png)
+![result after inference](images/demo1.png)
+![model performance](images/demo2.png)
