@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+import plotly.express as px
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import efficientnet.tfkeras
@@ -167,36 +168,65 @@ def main():
         st.subheader("Model Performance")
         history_files = get_history()
 
+        choice = st.sidebar.selectbox("Select Model", history_files)
+
         val_acc = []
+        train_acc = []
         val_loss = []
         lr = []
 
-        for i, history in enumerate(history_files):
-            df = pd.read_csv("Training History/" + history)
-            df.rename(columns={"Unnamed: 0": "epoch"}, inplace=True)
+        # for i, history in enumerate(history_files):
+        df = pd.read_csv("Training History/" + choice)
+        df.rename(columns={"Unnamed: 0": "epoch"}, inplace=True)
 
-            val_acc_line = go.Scatter(
-                x=df["epoch"],
-                y=df["val_accuracy"],
-                name=history.split(".")[0],
-            )
-            val_acc.append(val_acc_line)
+        fig = px.line(
+            df,
+            x="epoch",
+            y=["accuracy", "val_accuracy"],
+            color_discrete_sequence=["#28FFED", "#004DEE"],
+            markers=True,
+            height=400,
+            width=800,
+        )
+        fig.update_layout(xaxis_title="Epoch", yaxis_title="Accuracy")
 
-            val_loss_line = go.Scatter(
-                x=df["epoch"],
-                y=df["val_loss"],
-                name=history.split(".")[0],
-            )
-            val_loss.append(val_loss_line)
+        st.plotly_chart(fig)
 
-            learning_rate_line = go.Scatter(
-                x=df["epoch"],
-                y=df["lr"],
-                name=history.split(".")[0],
-            )
-            lr.append(learning_rate_line)
+        fig = px.line(
+            df,
+            x="epoch",
+            y=["loss", "val_loss"],
+            color_discrete_sequence=["#FF0000", "#FFAE0C"],
+            markers=True,
+            height=400,
+            width=800,
+        )
+        fig.update_layout(xaxis_title="Epoch", yaxis_title="Loss")
 
-        performance(val_acc, val_loss, lr)
+        st.plotly_chart(fig)
+
+        #     val_acc_line = go.Scatter(
+        #         x=df["epoch"],
+        #         y=df["val_accuracy"],
+        #         name=history.split(".")[0],
+        #     )
+        #     val_acc.append(val_acc_line)
+
+        #     val_loss_line = go.Scatter(
+        #         x=df["epoch"],
+        #         y=df["val_loss"],
+        #         name=history.split(".")[0],
+        #     )
+        #     val_loss.append(val_loss_line)
+
+        #     learning_rate_line = go.Scatter(
+        #         x=df["epoch"],
+        #         y=df["lr"],
+        #         name=history.split(".")[0],
+        #     )
+        #     lr.append(learning_rate_line)
+
+        # performance(val_acc, val_loss, lr)
 
 
 if __name__ == "__main__":
