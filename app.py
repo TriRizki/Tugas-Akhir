@@ -173,6 +173,11 @@ def main():
                 #     img_3d, heatmap, super_imposed_image
                 # )
 
+        st.write("Positive: ", positive)
+        st.write(name_positive)
+        st.write("Negative: ", negative)
+        st.write(name_negative)
+
         print("Positive: ", positive)
         print(name_positive)
         print("Negative: ", negative)
