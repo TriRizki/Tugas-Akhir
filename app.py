@@ -22,7 +22,7 @@ def get_model(choice):
         predict_model = load_model("Model/EfficientNetB0_TL_Model.h5")
     elif choice == "Custom Model":
         predict_model = load_model("Model/Custom_Model_with_GAP_Layer.h5")
-    else:
+    elif choice == "DenseNet121":
         predict_model = load_model("Model/DenseNet121_TL_Model.h5")
 
     gradcam_model = load_model("Model/Custom_Model_with_GAP_Layer.h5")
@@ -104,7 +104,9 @@ def main():
 
     # main page
     if choice == "Predict":
-        model = ["EfficientNetB0", "Custom Model", "DenseNet121"]
+        positive, negative = 0, 0
+        name_positive, name_negative = [], []
+        model = ["Custom Model", "EfficientNetB0", "DenseNet121"]
         model_choice = st.sidebar.selectbox("Select Model", model)
 
         predict_model, gradcam_model = get_model(model_choice)
@@ -126,12 +128,12 @@ def main():
                 # st.image(img, width=300, caption='Uploaded Image')
                 probability, binary, img_4d, img_3d = predict(image, predict_model)
 
-                heatmap = MalNetActivations.ComputeGradCAMHeatmap(
-                    img_4d, gradcam_model, last_conv_layer_name, classifier_layer_names
-                )
+                # heatmap = MalNetActivations.ComputeGradCAMHeatmap(
+                #     img_4d, gradcam_model, last_conv_layer_name, classifier_layer_names
+                # )
 
-                if np.isnan(heatmap).any():
-                    continue
+                # if np.isnan(heatmap).any():
+                #     continue
 
                 prob_scr = round(probability[0][0], 2) * 100
 
@@ -150,19 +152,31 @@ def main():
                 else:
                     infection_severity = "High"
 
-                st.write(
-                    """**Infection Probability: {:.2%}**\n\n **Infection Severity: {}**""".format(
-                        float(probability[0][0]), infection_severity
-                    )
-                )
+                # st.write(
+                #     """**Infection Probability: {:.2%}**\n\n **Infection Severity: {}**""".format(
+                #         float(probability[0][0]), infection_severity
+                #     )
+                # )
 
-                super_imposed_image = MalNetActivations.GetSuperImposedCAMImage(
-                    heatmap, img_3d
-                )
+                if binary == 0:
+                    negative += 1
+                    name_negative.append(image_file.name)
+                else:
+                    positive += 1
+                    name_positive.append(image_file.name)
 
-                MalNetActivations.DisplaySuperImposedImages(
-                    img_3d, heatmap, super_imposed_image
-                )
+                # super_imposed_image = MalNetActivations.GetSuperImposedCAMImage(
+                #     heatmap, img_3d
+                # )
+
+                # MalNetActivations.DisplaySuperImposedImages(
+                #     img_3d, heatmap, super_imposed_image
+                # )
+
+        print("Positive: ", positive)
+        print(name_positive)
+        print("Negative: ", negative)
+        print(name_negative)
 
     elif choice == "Performance":
         st.subheader("Model Performance")
