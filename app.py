@@ -128,12 +128,12 @@ def main():
                 # st.image(img, width=300, caption='Uploaded Image')
                 probability, binary, img_4d, img_3d = predict(image, predict_model)
 
-                # heatmap = MalNetActivations.ComputeGradCAMHeatmap(
-                #     img_4d, gradcam_model, last_conv_layer_name, classifier_layer_names
-                # )
+                heatmap = MalNetActivations.ComputeGradCAMHeatmap(
+                    img_4d, gradcam_model, last_conv_layer_name, classifier_layer_names
+                )
 
-                # if np.isnan(heatmap).any():
-                #     continue
+                if np.isnan(heatmap).any():
+                    continue
 
                 prob_scr = round(probability[0][0], 2) * 100
 
@@ -152,11 +152,11 @@ def main():
                 else:
                     infection_severity = "High"
 
-                # st.write(
-                #     """**Infection Probability: {:.2%}**\n\n **Infection Severity: {}**""".format(
-                #         float(probability[0][0]), infection_severity
-                #     )
-                # )
+                st.write(
+                    """**Infection Probability: {:.2%}**\n\n **Infection Severity: {}**""".format(
+                        float(probability[0][0]), infection_severity
+                    )
+                )
 
                 if binary == 0:
                     negative += 1
@@ -165,23 +165,13 @@ def main():
                     positive += 1
                     name_positive.append(image_file.name)
 
-                # super_imposed_image = MalNetActivations.GetSuperImposedCAMImage(
-                #     heatmap, img_3d
-                # )
+                super_imposed_image = MalNetActivations.GetSuperImposedCAMImage(
+                    heatmap, img_3d
+                )
 
-                # MalNetActivations.DisplaySuperImposedImages(
-                #     img_3d, heatmap, super_imposed_image
-                # )
-
-        st.write("Positive: ", positive)
-        st.write(name_positive)
-        st.write("Negative: ", negative)
-        st.write(name_negative)
-
-        print("Positive: ", positive)
-        print(name_positive)
-        print("Negative: ", negative)
-        print(name_negative)
+                MalNetActivations.DisplaySuperImposedImages(
+                    img_3d, heatmap, super_imposed_image
+                )
 
     elif choice == "Performance":
         st.subheader("Model Performance")
